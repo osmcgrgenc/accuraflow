@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { ModeToggle } from '@/components/mode-toggle';
 
 export default function AppHeader() {
   const userAvatar = PlaceHolderImages.find((p) => p.id === 'avatar-1') ?? {
@@ -45,6 +46,8 @@ export default function AppHeader() {
           </div>
         </form>
       </div>
+
+      <ModeToggle />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
