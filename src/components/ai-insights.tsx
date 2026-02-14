@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Sparkles, Loader2, AlertCircle, CheckCircle2, TrendingUp } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { generateDashboardInsights } from "@/app/actions/generate-insights"
 
 interface Insight {
   type: "warning" | "success" | "info"
@@ -12,32 +13,37 @@ interface Insight {
   action?: string
 }
 
-export function AIInsights() {
+interface AIInsightsProps {
+  data: {
+    customer: string
+    revenue: number
+    status: string
+  }[]
+}
+
+export function AIInsights({ data }: AIInsightsProps) {
   const [loading, setLoading] = useState(false)
   const [insights, setInsights] = useState<Insight[]>([])
+  const [error, setError] = useState<string | null>(null)
 
-  const generateInsights = () => {
+  const generateInsights = async () => {
     setLoading(true)
-    // Simulating Genkit Flow call
-    setTimeout(() => {
-      setInsights([
-        {
-          type: "warning",
-          message: "Gıda Pazarlama verilerinde %12'lik bir iade sapması tespit edildi. Sektör ortalamasının üzerinde.",
-          action: "Detayları İncele"
-        },
-        {
-          type: "success",
-          message: "ABC Holding tahakkuk hızı geçen aya göre %15 arttı. Verimlilik optimize edildi.",
-        },
-        {
-          type: "info",
-          message: "Haziran dönemi için 3 yeni müşteri verisi bekleniyor. Tahmini ciro artışı: ₺200k.",
-          action: "Projeksiyonu Gör"
-        }
-      ])
+    setError(null)
+    
+    try {
+      const result = await generateDashboardInsights(data)
+      
+      if (result.success && result.data) {
+        setInsights(result.data)
+      } else {
+        setError(result.error || "Beklenmeyen bir hata oluştu.")
+      }
+    } catch (err) {
+      setError("AI servisine bağlanılamadı.")
+      console.error(err)
+    } finally {
       setLoading(false)
-    }, 1500)
+    }
   }
 
   return (
@@ -63,7 +69,13 @@ export function AIInsights() {
         </Button>
       </CardHeader>
       <CardContent className="grid gap-4">
-        {insights.length === 0 && !loading && (
+        {error && (
+          <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md border border-destructive/20">
+            {error}
+          </div>
+        )}
+
+        {insights.length === 0 && !loading && !error && (
           <div className="text-center py-6 text-muted-foreground italic border-2 border-dashed rounded-lg">
             Verileri analiz etmek için butona tıklayın.
           </div>
