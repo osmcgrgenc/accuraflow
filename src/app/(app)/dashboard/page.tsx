@@ -105,7 +105,13 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <AIInsights />
+      <AIInsights 
+        data={accrualData.map(item => ({
+          customer: item.customer,
+          revenue: item.revenue,
+          status: item.status
+        }))} 
+      />
 
       <Card>
           <CardHeader>
